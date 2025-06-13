@@ -3,7 +3,7 @@ using UnityEngine;
 public class BulletScript : MonoBehaviour
 {
     public float moveSpeed;
-    public Vector3 moveDir;
+    //public Vector3 moveDir;
     private void Start()
     {
         Destroy(gameObject, 3f); // GameObject 나 자신을 3초 후에 삭제
@@ -16,7 +16,7 @@ public class BulletScript : MonoBehaviour
         //currentPosition.y += moveDir.y * moveSpeed * Time.deltaTime;
         transform.position = currentPosition;
         */
-        transform.Translate(moveDir * moveSpeed * Time.deltaTime);
+        transform.Translate(transform.right * moveSpeed * Time.deltaTime,Space.World);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -34,7 +34,7 @@ public class BulletScript : MonoBehaviour
 
                 Destroy(other.gameObject); // 부딛힌 물체 삭제
             }
-
+            Destroy(gameObject);
         }
         if (other.CompareTag("Boundary")) //내가 상호작용한 콜라이더가 부착된 오브젝트의 태그가 "Boundary라면
         {

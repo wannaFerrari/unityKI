@@ -6,9 +6,24 @@ public class MoveTest : MonoBehaviour
     //public Transform myTransform;
 
     public float moveSpeed = 10f;
+    public float bulletSpeed;
+    public float fireInterval = 0.1f; // 발사 간격
+    private float lastFireTime = 0; // 직전 발사 시간
+    public float rotateSpeed;
     public Vector3 moveDir;
     public SpriteRenderer spriteRenderer;
     public GameObject gameObject;
+
+    public Transform gunPivot;
+    public Transform[] shotPoints;
+
+    public SpriteRenderer characterRenderer;
+    public SpriteRenderer gunRenderer;
+    
+    void Awake()
+    {
+        gunPivot = transform.Find("GunPivot");
+    }
     void Update()
     {
         float x = Input.GetAxis("Horizontal");
@@ -17,13 +32,33 @@ public class MoveTest : MonoBehaviour
         moveDir = new Vector3(x, y);
         if (x < 0)
         {
-            spriteRenderer.flipX = true;
+            //characterRenderer.flipX = true;
+            transform.Rotate(0, rotateSpeed * Time.deltaTime,0);
         }
         else if (x > 0) 
         {
-            spriteRenderer.flipX= false;
+            //characterRenderer.flipX= false;
+            transform.Rotate(0,  rotateSpeed * Time.deltaTime,0);
         }
-        if (Input.GetButtonDown("Jump")||Input.GetMouseButtonDown(0))
+        else if(x ==0 && y == 0)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //마우스가 스크린에서 어느 위치에 있는지 월드 좌표를 반환하는 함수
+
+        //위치1에서 위치2로 향하는 방향벡터를 구하는 공식 : 위치2 - 위치1
+        //방향 벡터를 활용할때, 힘의 크기가 필요 없다면 벡터 길이를 1로 고정.
+
+        Vector3 fireDir = mousePos - transform.position;
+        fireDir.z = 0;
+
+        gunPivot.right = fireDir;//총을 자식으로 가지고 있는 GunPivot의 Transform을 회전
+
+        gunRenderer.flipY = fireDir.x < 0; //총을 발사할 방향이 왼쪽 (방향 벡터의 x값이 -)일 경우 총의 위아래를 바꿔줌
+        //if(fireDir.x)
+
+        if (Input.GetButtonDown("Jump")||Input.GetMouseButton(0))
         {
             print("스페이스바 눌림");
             
@@ -36,13 +71,8 @@ public class MoveTest : MonoBehaviour
             //g.GetComponent<Rigidbody>().AddForce(transform.right * 1000);
 
 
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition); //마우스가 스크린에서 어느 위치에 있는지 월드 좌표를 반환하는 함수
-
-            //위치1에서 위치2로 향하는 방향벡터를 구하는 공식 : 위치2 - 위치1
-            //방향 벡터를 활용할때, 힘의 크기가 필요 없다면 벡터 길이를 1로 고정.
-
-            Vector3 fireDir = mousePos - transform.position;
-            fireDir.z = 0;
+            
+           
             fireDir = fireDir.normalized; //벡터의 길이를 1로 고정해주는 함수
             Fire(fireDir);
         }
@@ -76,10 +106,19 @@ public class MoveTest : MonoBehaviour
 
     }
 
+    
+
     void Fire(Vector3 fireDir)
     {
-        BulletScript bullet = Instantiate(gameObject, transform.position, Quaternion.identity).GetComponent<BulletScript>();
-        //생성되는 총알을 fireDir방향으로 발사하고 싶음
-        bullet.moveDir = fireDir;   
+        if (Time.time < lastFireTime + fireInterval) return; //아직 다음 발사시간이 안되었으면 return
+        lastFireTime = Time.time;
+
+        foreach (Transform shotPoint in shotPoints)
+        {
+            BulletScript bullet = Instantiate(gameObject, shotPoint.position, shotPoint.rotation).GetComponent<BulletScript>();
+            //생성되는 총알을 fireDir방향으로 발사하고 싶음
+            //bullet.transform.right = shotPoint.right;
+            bullet.moveSpeed = bulletSpeed;
+        }
     }
 }

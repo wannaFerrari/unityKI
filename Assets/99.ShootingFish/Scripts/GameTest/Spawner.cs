@@ -7,7 +7,7 @@ public class Spawner : MonoBehaviour
     //적을 스폰하도록 할 예정
     public float interval; // 생성간격(초)
     public GameObject[] enemyPrefab;
-
+    public GameObject player;
     int enemySelect;
     private float lastSpawnTime;
 
@@ -25,7 +25,7 @@ public class Spawner : MonoBehaviour
             //유니티의 Random 클래스.
             //System.Random random = new System.Random();
             //random.Next();
-            Vector3 spawnPosition = Random.insideUnitCircle * 5;
+            Vector3 spawnPosition = Random.insideUnitCircle * 2*player.transform.position;
 
             enemySelect = Random.Range(0, enemyPrefab.Length);
 
