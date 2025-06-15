@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TimeScaleTest : MonoBehaviour
 {
-    [Range(0.001f,10f)]
+    [Range(0.001f,100f)]
     public float timeScale;
 
 
